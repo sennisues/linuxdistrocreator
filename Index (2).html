@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DistroForge</title>
+<style>
+:root{--bg:#f4f5f7;--panel:#fff;--ink:#1b1f24;--mute:#667;--line:#d8dce2;--acc:#2f7cf6;--term:#0d1117;--tx:#c9d1d9;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14171c;--panel:#1d2128;--ink:#e6e9ee;--mute:#99a;--line:#2e343d}}
+:root[data-theme="dark"]{--bg:#14171c;--panel:#1d2128;--ink:#e6e9ee;--mute:#99a;--line:#2e343d}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+.app{display:grid;grid-template-columns:320px 1fr;gap:16px;padding:16px;max-width:1200px;margin:auto}
+@media(max-width:820px){.app{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;align-self:start}
+h1{font-size:20px;margin:0 0 2px}p.s{margin:0 0 14px;color:var(--mute);font-size:13px}
+label{display:block;font-size:12px;font-weight:600;color:var(--mute);margin:12px 0 4px;text-transform:uppercase;letter-spacing:.04em}
+input[type=text],select,textarea{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit}
+button{font:inherit;cursor:pointer;border:0;border-radius:8px;padding:10px 14px;background:var(--acc);color:#fff;font-weight:600;width:100%;margin-top:16px}
+.sprites{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.sp{width:48px;height:48px;border:2px solid var(--line);border-radius:8px;background:var(--bg);padding:2px;cursor:pointer}
+.sp.on{border-color:var(--acc)}.sp img{width:100%;height:100%;object-fit:contain;image-rendering:pixelated}
+.hint{font-size:12px;color:var(--mute);margin-top:6px}
+.screen{background:var(--term);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;height:min(620px,78vh);border:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:8px;padding:6px 10px;background:#161b22;color:#c9d1d9;font-size:13px;overflow-x:auto}
+.bar b{display:flex;align-items:center;gap:6px;white-space:nowrap}
+.bar img{width:20px;height:20px;image-rendering:pixelated;object-fit:contain;cursor:pointer;border-radius:4px}
+.bar span{margin-left:auto;opacity:.6;white-space:nowrap}
+#out{flex:1;overflow:auto;padding:12px;color:var(--tx);font:13px/1.4 ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap;word-break:break-word}
+#out img{image-rendering:pixelated;max-width:160px;display:block;margin:6px 0;background:#fff1;border-radius:6px}
+.row{display:flex;gap:6px;padding:0 12px 12px;color:var(--tx);font:13px ui-monospace,Menlo,Consolas,monospace}
+.row input{flex:1;background:none;border:0;outline:0;color:inherit;font:inherit}
+.logo{width:96px;height:96px;object-fit:contain;image-rendering:pixelated;display:block;margin:8px 0}
+.mut{opacity:.6}.ok{color:#3fb950}.er{color:#f85149}
+textarea{min-height:64px;resize:vertical;font:12px ui-monospace,Menlo,Consolas,monospace;margin-top:6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.chip{background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:2px 4px 2px 10px;font:12px ui-monospace,Menlo,monospace}.chip i{cursor:pointer;font-style:normal;padding:0 6px;opacity:.6}
+button.sec{background:var(--bg);color:var(--ink);border:1px solid var(--line);margin-top:8px}
+#desk{position:fixed;inset:0;z-index:50;display:none;flex-direction:column;background:linear-gradient(135deg,hsl(var(--h) 60% 24%),hsl(calc(var(--h) + 50) 55% 10%));color:#fff;font:14px system-ui,sans-serif;user-select:none;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+#desk.on{display:flex}#dwork{flex:1;position:relative;overflow:hidden}
+#dicons{position:absolute;inset:0;padding:14px;display:flex;flex-direction:column;flex-wrap:wrap;align-content:flex-start;gap:10px}
+.di{width:84px;text-align:center;cursor:pointer;padding:6px 2px;border-radius:8px;font-size:12px}.di:hover{background:#fff2}
+.di .ic{height:48px;display:flex;align-items:center;justify-content:center;font-size:34px}.di img{width:44px;height:44px;object-fit:contain;image-rendering:pixelated}
+.di span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.win{position:absolute;display:flex;flex-direction:column;background:#1c2028;border:1px solid #fff3;border-radius:10px;overflow:hidden;box-shadow:0 12px 40px #0008}
+.wt{display:flex;align-items:center;padding:6px 10px;background:#11151b;cursor:move;touch-action:none;font-weight:600;font-size:13px}.wt b{margin-left:auto;cursor:pointer;padding:0 6px;opacity:.7}
+.wb{flex:1;overflow:auto;min-height:0;color:#dde}.wbt{display:flex;flex-direction:column}.wbt .screen{flex:1;height:auto;border:0;border-radius:0}
+.pad{padding:12px}.fr{padding:7px 12px;cursor:pointer;border-bottom:1px solid #fff1}.fr:hover{background:#fff1}
+.gal{display:grid;grid-template-columns:repeat(auto-fill,72px);gap:10px;padding:12px}.gal img{width:72px;height:72px;object-fit:contain;image-rendering:pixelated;background:#fff1;border-radius:8px;cursor:pointer}
+#dbar{display:flex;align-items:center;gap:6px;padding:6px 10px;background:#000b;position:relative}
+#dbar button{width:auto;margin:0;padding:6px 12px;background:#fff1;color:#fff;font-weight:500;display:flex;align-items:center;gap:6px;white-space:nowrap}#dbar button img{width:18px;height:18px;image-rendering:pixelated}
+#dtasks{display:flex;gap:6px;flex:1;overflow:auto}
+#dmenu{position:absolute;left:8px;bottom:100%;margin-bottom:6px;min-width:210px;background:#161a21f2;border:1px solid #fff3;border-radius:10px;padding:6px;z-index:99999}#dmenu div{padding:9px 12px;border-radius:6px;cursor:pointer}#dmenu div:hover{background:#fff2}
+</style></head><body>
+<div class="app">
+<div class="panel">
+<h1>DistroForge</h1><p class="s">Design a distro, then boot it right here.</p>
+<label>Distro name</label><input type="text" id="name" value="PixelOS">
+<label>Base</label><select id="base"><option value="debian">Debian-style (apt)</option><option value="arch">Arch-style (pacman)</option><option value="alpine">Alpine-style (apk)</option></select>
+<label>Coding language</label><select id="lang"><option value="js">JavaScript</option><option value="py">Python</option><option value="c">C</option><option value="rs">Rust</option><option value="go">Go</option><option value="lua">Lua</option></select>
+<label>Sprites</label><input type="file" id="file" accept="image/*" multiple>
+<div class="sprites" id="sprites"></div>
+<div class="hint" id="hint">Import images; click one to use it as your boot logo.</div>
+<label>Custom commands</label><input type="text" id="cn" placeholder="command name, e.g. greet">
+<textarea id="cb" spellcheck="false" placeholder="JavaScript body. Use args, print(), printImg(), sprites, sys. Or return a string.">return 'Hello, ' + (args[0] || 'world') + '!';</textarea>
+<button class="sec" id="ca">Add command</button>
+<div class="chips" id="chips"></div>
+<div class="hint">You can also define them live in the shell: defcmd name "js body" (remove with rmcmd name).</div>
+<button id="go">Build &amp; boot</button>
+</div>
+<div><div class="screen">
+<div class="bar" id="bar"><b>🐧 not booted</b></div>
+<div id="out"><span class="mut">Configure your distro on the left and press “Build &amp; boot”.</span></div>
+<div class="row"><span id="ps">$</span><input id="in" autocomplete="off" spellcheck="false" disabled></div>
+</div>
+<button class="sec" id="fs" disabled style="width:auto;padding:8px 14px;margin:0 0 10px">⛶ Fullscreen desktop</button>
+<p class="hint">JavaScript and Lua (a real Lua 5.3 VM) run for real. Other languages are simulated: the shell reads their print statements instead of compiling.</p></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/fengari-web@0.1.4/dist/fengari-web.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const BASES={debian:{pm:'apt',inst:'install',kern:'6.1.0-deb',ver:'12'},arch:{pm:'pacman',inst:'-S',kern:'6.9.3-arch1',ver:'rolling'},alpine:{pm:'apk',inst:'add',kern:'6.6.32-lts',ver:'3.20'}};
+const LANGS={js:{n:'JavaScript',cmd:'node',ext:'js',code:'console.log("Hello from " + "PixelOS!");\nconsole.log([1,2,3].map(x=>x*x));'},
+py:{n:'Python',cmd:'python3',ext:'py',code:'print("Hello from Python!")'},
+c:{n:'C',cmd:'gcc',ext:'c',code:'#include <stdio.h>\nint main(){printf("Hello from C!\\n");}'},
+rs:{n:'Rust',cmd:'rustc',ext:'rs',code:'fn main(){ println!("Hello from Rust!"); }'},
+go:{n:'Go',cmd:'go run',ext:'go',code:'package main\nimport "fmt"\nfunc main(){ fmt.Println("Hello from Go!") }'},
+lua:{n:'Lua',cmd:'lua',ext:'lua',code:'-- Lua demo\nlocal name = "PixelOS"\nlocal function fib(n) if n < 2 then return n end return fib(n-1) + fib(n-2) end\nfor i = 1, 8 do io.write(fib(i), " ") end\nprint()\nlocal t = {red = 1, green = 2}\nfor k, v in pairs(t) do print(k, v) end\nprint(("hello"):upper(), #name, math.pi)'}};
+let sprites=[],logo=0,sys=null;
+function drawSprites(){const el=$('sprites');el.innerHTML='';sprites.forEach((s,i)=>{const d=document.createElement('div');d.className='sp'+(i===logo?' on':'');d.innerHTML='<img alt="">';d.firstChild.src=s.url;d.title=s.name;d.onclick=()=>{logo=i;drawSprites()};el.appendChild(d)})}
+$('file').onchange=e=>{[...e.target.files].forEach(f=>{const r=new FileReader();r.onload=()=>{let n=f.name.replace(/[^\w.\-]/g,'_');sprites.push({name:n,url:r.result});drawSprites()};r.readAsDataURL(f)});e.target.value=''};
+const out=$('out'),inp=$('in');
+let customs=[{name:'sprite-count',body:"return sprites.length + ' sprite(s) loaded';"}];
+function drawChips(){const el=$('chips');el.innerHTML='';customs.forEach((c,i)=>{const d=document.createElement('span');d.className='chip';d.textContent=c.name;const x=document.createElement('i');x.textContent='×';x.title='Remove';x.onclick=()=>{customs.splice(i,1);drawChips()};d.appendChild(x);el.appendChild(d)})}
+function addCmd(n,b){n=(n||'').trim().replace(/[^\w\-]/g,'');if(!n||!b)return false;customs=customs.filter(c=>c.name!==n);customs.push({name:n,body:b});drawChips();return true}
+$('ca').onclick=()=>{if(addCmd($('cn').value,$('cb').value))$('cn').value=''};
+drawChips();
+function runCustom(c,args){const ctx={args,print:t=>print(String(t)),printImg:n=>{const s=sprites.find(x=>x.name===n);s?printImg(s.url):print('no sprite '+n,'er')},sprites:sprites.map(s=>s.name),sys:{name:sys.name,cwd:sys.cwd,host:sys.host,lang:sys.L.n,pkgs:sys.pkgs,files:sys.files}};try{const r=new Function('ctx','const {args,print,printImg,sprites,sys}=ctx;'+c.body)(ctx);if(r!==undefined)print(String(r))}catch(e){print(c.name+': '+e.message,'er')}}
+function print(t,cls){const d=document.createElement('div');if(cls)d.className=cls;d.textContent=t;out.appendChild(d);out.scrollTop=out.scrollHeight}
+function printImg(url,cls){const i=document.createElement('img');i.src=url;if(cls)i.className=cls;out.appendChild(i);out.scrollTop=out.scrollHeight}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+$('go').onclick=async()=>{
+ const base=BASES[$('base').value],L=LANGS[$('lang').value],name=($('name').value.trim()||'MyOS');
+ const host=name.toLowerCase().replace(/[^a-z0-9]/g,'')||'myos';
+ sys={name,host,base,L,pkgs:[],cwd:'/home/user',hist:[],hi:0,booting:true,files:{},dirs:new Set(['/','/home','/home/user','/home/user/sprites','/etc','/bin','/usr','/tmp'])};
+ sys.files['/etc/os-release']='NAME="'+name+'"\nVERSION="'+base.ver+'"\nID='+host+'\nLANG_STACK='+L.n;
+ sys.files['/home/user/hello.'+L.ext]=L.code.replace('PixelOS',name);
+ sprites.forEach(s=>sys.files['/home/user/sprites/'+s.name]='[image]');
+ $('bar').innerHTML='';const b=document.createElement('b');if(sprites[logo]){const i=document.createElement('img');i.src=sprites[logo].url;b.appendChild(i)}else b.append('🐧');b.append(' '+name);$('bar').appendChild(b);
+ sprites.forEach(s=>{const i=document.createElement('img');i.src=s.url;i.title='Open '+s.name;i.onclick=()=>{if(!sys.booting){inp.value='showsprite '+s.name;inp.focus()}};$('bar').appendChild(i)});
+ const sp=document.createElement('span');sp.textContent=L.n+' · '+base.pm;$('bar').appendChild(sp);
+ out.innerHTML='';inp.disabled=true;
+ if(sprites[logo])printImg(sprites[logo].url,'logo');
+ const log=['Loading kernel '+base.kern+'…','Mounting virtual root filesystem','Starting '+base.pm+' package service','Provisioning '+L.n+' toolchain ('+L.cmd+')','Importing '+sprites.length+' sprite(s) into ~/sprites','Reached target: '+name+' ready'];
+ print('Booting '+name+' ('+base.ver+')');
+ for(const l of log){await sleep(280);print('[  OK  ] '+l,'ok')}
+ await sleep(250);print('\nWelcome to '+name+'. Type “help” to get started.\n');
+ print('Tip: type '+sys.L.n+' code straight at the prompt, no file needed.\n','ok');$('fs').disabled=false;sys.booting=false;inp.disabled=false;inp.focus();prompt()};
+function prompt(){if(sys.repl){$('ps').textContent='>';return}$('ps').textContent='user@'+sys.host+':'+sys.cwd.replace('/home/user','~')+'$'}
+function abs(p){if(!p)return sys.cwd;if(p==='~')p='/home/user';if(p[0]!=='/')p=sys.cwd+'/'+p;const a=[];p.split('/').forEach(x=>{if(!x||x==='.')return;x==='..'?a.pop():a.push(x)});return '/'+a.join('/')}
+function ls(p){const kids=new Set();const pre=p==='/'?'/':p+'/';[...sys.dirs,...Object.keys(sys.files)].forEach(k=>{if(k!==p&&k.startsWith(pre)){const r=k.slice(pre.length).split('/')[0];kids.add(r+(sys.dirs.has(pre+r)?'/':''))}});return [...kids].sort()}
+function tok(s){return[...s.matchAll(/"([^"]*)"|'([^']*)'|(\S+)/g)].map(m=>m[1]??m[2]??m[3])}
+function luaState(){const F=fengari,{lua,lauxlib,lualib,to_luastring,to_jsstring}=F;const L=lauxlib.luaL_newstate();lualib.luaL_openlibs(L);const buf=[];
+ const reg=(n,f)=>{lua.lua_pushcfunction(L,f);lua.lua_setglobal(L,to_luastring(n))};
+ const S=i=>{lauxlib.luaL_tolstring(L,i,null);const s=to_jsstring(lua.lua_tostring(L,-1));lua.lua_pop(L,1);return s};
+ reg('print',()=>{const n=lua.lua_gettop(L),p=[];for(let i=1;i<=n;i++)p.push(S(i));buf.push(p.join('\t')+'\n');return 0});
+ reg('__w',()=>{const n=lua.lua_gettop(L);for(let i=1;i<=n;i++)buf.push(S(i));return 0});
+ lauxlib.luaL_dostring(L,to_luastring('io.write=function(...) __w(...) return io end io.read=function() return nil end'));
+ return{run(code,expr){buf.length=0;let st=1;if(expr){st=lauxlib.luaL_loadstring(L,to_luastring('return '+code));if(st!==0)lua.lua_settop(L,0)}
+  if(st!==0)st=lauxlib.luaL_loadstring(L,to_luastring(code));if(st===0)st=lua.lua_pcall(L,0,lua.LUA_MULTRET,0);let err=null;
+  if(st!==0)err=to_jsstring(lua.lua_tostring(L,-1));else if(expr){const n=lua.lua_gettop(L),p=[];for(let i=1;i<=n;i++)p.push(S(i));if(n)buf.push(p.join('\t')+'\n')}
+  lua.lua_settop(L,0);return{out:buf.join(''),err}}}}
+function directRun(code){const ext=sys.L.ext;
+ if(ext==='lua'&&window.fengari){sys.ls=sys.ls||luaState();const r=sys.ls.run(code,true);if(r.out)print(r.out.replace(/\n$/,''));if(r.err)print(r.err,'er');return true}
+ if(ext==='js'){if(!sys.sc){const fmt=x=>typeof x==='object'?JSON.stringify(x):String(x);const t={console:{log:(...a)=>print(a.map(fmt).join(' '))},Math,JSON,Date,Array,Object,String,Number,parseInt,parseFloat,print:(...a)=>print(a.map(fmt).join(' '))};sys.sc=new Proxy(t,{has:()=>true,get:(o,k)=>{if(k===Symbol.unscopables)return undefined;if(k in o)return o[k];if(k in globalThis)return undefined;throw new ReferenceError(k+' is not defined')}})}
+  const c=code.replace(/^\s*(?:let|const|var)\s+/,'').replace(/;\s*$/,'');const run=b=>new Function('scope','with(scope){'+b+'}')(sys.sc);
+  try{let r;try{r=run('return ('+c+')')}catch(e){if(e instanceof SyntaxError)r=run(c);else throw e}if(r!==undefined)print(typeof r==='object'?JSON.stringify(r):String(r))}catch(e){print(e.message,'er')}return true}
+ const o=runCode(code,ext);if(!o.length)return false;o.forEach(x=>print(x));return true}
+function runLua(code){const r=luaState().run(code);const l=r.out?r.out.replace(/\n$/,'').split('\n'):[];if(r.err)l.push(r.err);return l}
+function runCode(code,ext){
+ if(ext==='lua'&&window.fengari)return runLua(code);
+ if(ext==='js'){const o=[];const c={log:(...a)=>o.push(a.map(x=>typeof x==='object'?JSON.stringify(x):String(x)).join(' '))};try{new Function('console',code)(c)}catch(e){o.push('Error: '+e.message)}return o}
+ const pats={py:/print\(\s*(?:"([^"]*)"|'([^']*)')/g,c:/printf\(\s*"([^"]*)"/g,rs:/println!\(\s*"([^"]*)"/g,go:/Println\(\s*"([^"]*)"/g,lua:/print\(\s*(?:"([^"]*)"|'([^']*)')/g};
+ return[...code.matchAll(pats[ext])].map(m=>(m[1]??m[2]).replace(/\\n$/,'').replace(/\\n/g,'\n'))}
+async function exec(line){
+ print($('ps').textContent+' '+line,'mut');
+ if(sys.repl){const l=line.trim();if(l==='exit'||l==='quit'||l==='os.exit()'){sys.repl=null;return}const r=sys.repl.run(line,true);if(r.out)print(r.out.replace(/\n$/,''));if(r.err)print(r.err,'er');return}
+ const t=tok(line);if(!t.length)return;const c=t[0],a=t.slice(1),B=sys.base,L=sys.L;
+ if(c==='help')return print((customs.length?'Custom: '+customs.map(x=>x.name).join(' ')+'\n':'')+'Run code directly, no file needed. Commands: defcmd rmcmd ls cd pwd cat echo mkdir touch rm clear whoami hostname uname date neofetch\n'+B.pm+' '+B.inst+' <pkg>   '+L.cmd+' <file.'+L.ext+'>   sprites   showsprite <name>\nWrite files: echo "code" > file.'+L.ext+'  (use \\n for new lines)');
+ if(c==='clear'){out.innerHTML='';return}
+ if(c==='pwd')return print(sys.cwd);
+ if(c==='whoami')return print('user');
+ if(c==='hostname')return print(sys.host);
+ if(c==='date')return print(new Date().toString());
+ if(c==='uname')return print('Linux '+sys.host+' '+B.kern+' x86_64 GNU/Linux');
+ if(c==='ls'){const p=abs(a[0]);if(!sys.dirs.has(p)&&!(p in sys.files))return print('ls: cannot access '+(a[0]||p)+': No such file','er');return print(p in sys.files?a[0]:ls(p).join('  '))}
+ if(c==='cd'){const p=abs(a[0]||'~');if(sys.dirs.has(p)){sys.cwd=p;prompt()}else print('cd: no such directory: '+a[0],'er');return}
+ if(c==='cat'){const p=abs(a[0]);return p in sys.files?print(sys.files[p]):print('cat: '+a[0]+': No such file','er')}
+ if(c==='mkdir'){a.forEach(x=>sys.dirs.add(abs(x)));return}
+ if(c==='touch'){a.forEach(x=>{const p=abs(x);if(!(p in sys.files))sys.files[p]=''});return}
+ if(c==='rm'){a.forEach(x=>{const p=abs(x);if(p in sys.files)delete sys.files[p];else print('rm: '+x+': No such file','er')});return}
+ if(c==='echo'){const i=a.findIndex(x=>x==='>'||x==='>>');const txt=(i<0?a:a.slice(0,i)).join(' ').replace(/\\n/g,'\n');if(i<0)return print(txt);const p=abs(a[i+1]);sys.files[p]=a[i]==='>>'?(sys.files[p]||'')+'\n'+txt:txt;return}
+ if(c==='defcmd')return addCmd(a[0],a.slice(1).join(' '))?print('defined '+a[0],'ok'):print('usage: defcmd name "js body"','er');
+ if(c==='rmcmd'){const n=customs.length;customs=customs.filter(x=>x.name!==a[0]);drawChips();return print(customs.length<n?'removed '+a[0]:'no such custom command','er')}
+ if(c==='sprites'){const s=ls('/home/user/sprites');return print(s.length?s.join('\n'):'No sprites imported.')}
+ if(c==='showsprite'){const s=sprites.find(x=>x.name===a[0]);return s?printImg(s.url):print('showsprite: unknown sprite. Try “sprites”.','er')}
+ if(c==='neofetch'){if(sprites[logo])printImg(sprites[logo].url,'logo');return print('user@'+sys.host+'\n-----------\nOS: '+sys.name+' ('+B.ver+')\nKernel: '+B.kern+'\nShell: dforge-sh\nLanguage: '+L.n+' ('+L.cmd+')\nPackages: '+(sys.pkgs.length+12)+' ('+B.pm+')\nSprites: '+sprites.length)}
+ if(c===B.pm){if(a[0]!==B.inst||!a[1])return print('usage: '+B.pm+' '+B.inst+' <package>');for(const p of a.slice(1)){print('Resolving '+p+'…');await sleep(300);print('Installing '+p+' ████████ 100%','ok');sys.pkgs.push(p)}return}
+ if(c==='luaref'&&L.ext==='lua')return print(['Keywords: and break do else elseif end false for function goto if in local nil not or repeat return then true until while','Globals: print type tostring tonumber pairs ipairs next select assert error pcall xpcall setmetatable getmetatable rawget rawset rawequal rawlen require load dofile','Libs: string.* table.* math.* os.* io.write utf8.* coroutine.*','Operators: + - * / // % ^ .. == ~= < <= > >= # & | ~ << >>'].join('\n'));
+ if(c==='lua'&&L.ext==='lua'&&window.fengari){if(!a.length){sys.ls=sys.ls||luaState();sys.repl=sys.ls;print('Lua 5.3 (Fengari VM). Type exit to quit.','mut');return}if(a[0]==='-e'){runLua(a.slice(1).join(' ')).forEach(x=>print(x));return}}
+ if(c===L.cmd.split(' ')[0]&&(a[0]==='-e'||a[0]==='-c')){if(!directRun(a.slice(1).join(' ')))print('no output');return}
+ if(c===L.cmd.split(' ')[0]){const args=L.cmd.includes(' ')?a.slice(1):a;const f=args[0];if(!f)return print('No file needed: just type '+L.n+' code at the prompt, or use '+L.cmd+' -e "code".');const p=abs(f);if(!(p in sys.files))return print(L.cmd+': cannot open '+f,'er');if(['c','rs'].includes(L.ext))print('compiling '+f+'…','mut');runCode(sys.files[p],L.ext).forEach(x=>print(x));return}
+ const cc=customs.find(x=>x.name===c);if(cc)return runCustom(cc,a);
+ if(directRun(line))return;
+ print(c+': command not found','er')}
+inp.addEventListener('keydown',async e=>{
+ if(e.key==='Enter'){const v=inp.value;inp.value='';if(v.trim()){sys.hist.push(v);sys.hi=sys.hist.length}inp.disabled=true;await exec(v);inp.disabled=false;inp.focus();prompt()}
+ else if(e.key==='ArrowUp'&&sys){sys.hi=Math.max(0,sys.hi-1);inp.value=sys.hist[sys.hi]||'';e.preventDefault()}
+ else if(e.key==='ArrowDown'&&sys){sys.hi=Math.min(sys.hist.length,sys.hi+1);inp.value=sys.hist[sys.hi]||''}});
+out.onclick=()=>inp.focus();
+let desk,tk,wins={},wz=10,clk;
+const SCR=document.querySelector('.screen'),SHOME=SCR.parentNode;
+const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+const logoEl=()=>{if(sprites[logo]){const i=el('img');i.src=sprites[logo].url;return i}return el('span',0,'🐧')};
+const once=(id,f)=>wins[id]?(wins[id].style.zIndex=++wz):f();
+function tasks(){tk.innerHTML='';Object.values(wins).forEach(W=>{const b=el('button',0,W.dataset.t);b.onclick=()=>{W.style.zIndex=++wz};tk.appendChild(b)})}
+function closeWin(id){const W=wins[id];if(!W)return;if(id==='term')SHOME.insertBefore(SCR,SHOME.firstChild);W.remove();delete wins[id];tasks()}
+function openWin(id,title,body,w,h){const n=Object.keys(wins).length,W=el('div','win'),tb=el('div','wt',title),x=el('b',0,'×');W.dataset.t=title;
+ W.style.cssText='width:min('+w+'px,96%);height:min('+h+'px,88%);left:'+(30+n*30)+'px;top:'+(20+n*30)+'px;z-index:'+(++wz);x.onclick=()=>closeWin(id);tb.appendChild(x);
+ tb.onpointerdown=e=>{if(e.target===x)return;const dx=e.clientX-W.offsetLeft,dy=e.clientY-W.offsetTop;tb.setPointerCapture(e.pointerId);tb.onpointermove=m=>{W.style.left=Math.max(0,m.clientX-dx)+'px';W.style.top=Math.max(0,m.clientY-dy)+'px'};tb.onpointerup=()=>{tb.onpointermove=null}};
+ body.classList.add('wb');W.append(tb,body);W.onpointerdown=()=>{W.style.zIndex=++wz};$('dwork').appendChild(W);wins[id]=W;tasks()}
+function openTerm(){once('term',()=>{const b=el('div','wbt');b.appendChild(SCR);openWin('term','Terminal',b,660,430);inp.focus()})}
+function imgWin(s){once('i:'+s.name,()=>{const i=el('img');i.src=s.url;i.style.cssText='display:block;margin:auto;max-width:100%;image-rendering:pixelated;padding:12px;box-sizing:border-box';openWin('i:'+s.name,s.name,i,280,300)})}
+function openFiles(){once('files',()=>{const b=el('div'),st={p:'/home/user'};const draw=()=>{b.innerHTML='';const h=el('div','fr',st.p);h.style.opacity=.7;b.appendChild(h);const row=(t,f)=>{const r=el('div','fr',t);r.onclick=f;b.appendChild(r)};
+  if(st.p!=='/')row('📁 ..',()=>{st.p=abs(st.p+'/..');draw()});
+  ls(st.p).forEach(n=>{const d=n.endsWith('/'),nm=d?n.slice(0,-1):n,full=abs(st.p+'/'+nm);row((d?'📁 ':'📄 ')+nm,()=>{if(d){st.p=full;draw();return}const s=sprites.find(x=>x.name===nm);if(s&&full.includes('/sprites/'))return imgWin(s);const pre=el('pre',0,sys.files[full]??'');pre.style.cssText='margin:0;padding:12px;white-space:pre-wrap';once('f:'+full,()=>openWin('f:'+full,nm,pre,420,300))})})};
+ draw();openWin('files','Files',b,420,360)})}
+function openGallery(){once('gal',()=>{const g=el('div','gal');if(!sprites.length)g.textContent='No sprites imported yet.';sprites.forEach(s=>{const i=el('img');i.src=s.url;i.title=s.name;i.onclick=()=>imgWin(s);g.appendChild(i)});openWin('gal','Sprites',g,360,300)})}
+function openAbout(){once('about',()=>{const b=el('div','pad'),B=sys.base,l=logoEl();l.style.cssText='width:64px;height:64px;font-size:48px;display:block;object-fit:contain';const t=el('pre',0,[sys.name+' '+B.ver,'Kernel: '+B.kern,'Package manager: '+B.pm,'Language: '+sys.L.n,'Sprites: '+sprites.length,'Installed: '+(sys.pkgs.join(', ')||'none')].join('\n'));t.style.cssText='margin:8px 0 0;font:13px ui-monospace,monospace';b.append(l,t);openWin('about','About '+sys.name,b,340,260)})}
+function openDesk(){if(!sys)return;if(!desk){desk=el('div');desk.id='desk';document.body.appendChild(desk)}
+ desk.style.setProperty('--h',[...sys.name].reduce((a,c)=>a+c.charCodeAt(0)*7,0)%360);desk.innerHTML='';wins={};
+ const work=el('div'),ic=el('div'),bar=el('div'),menu=el('div');work.id='dwork';ic.id='dicons';bar.id='dbar';menu.id='dmenu';menu.style.display='none';work.appendChild(ic);
+ const icon=(l,n,f)=>{const d=el('div','di'),c=el('div','ic');typeof n==='string'?c.textContent=n:c.appendChild(n);d.append(c,el('span',0,l));d.onclick=()=>{menu.style.display='none';f()};ic.appendChild(d)};
+ const mb=el('button');mb.append(logoEl(),sys.name);mb.onclick=()=>{menu.style.display=menu.style.display==='none'?'block':'none'};
+ tk=el('div');tk.id='dtasks';const ck=el('span'),ex=el('button',0,'✕ Exit');ex.onclick=closeDesk;
+ [['Terminal','⌨️',openTerm],['Files','📁',openFiles],['Sprites','🖼️',openGallery],['About','ℹ️',openAbout]].forEach(a=>{icon(a[0],a[1],a[2]);const m=el('div',0,a[1]+'  '+a[0]);m.onclick=()=>{menu.style.display='none';a[2]()};menu.appendChild(m)});
+ sprites.forEach(s=>{const i=el('img');i.src=s.url;icon(s.name,i,()=>imgWin(s))});
+ const sd=el('div',0,'⏻  Shut down');sd.onclick=closeDesk;menu.appendChild(sd);
+ work.onpointerdown=e=>{if(e.target===work||e.target===ic)menu.style.display='none'};
+ bar.append(mb,tk,ck,ex,menu);desk.append(work,bar);desk.className='on';menu.style.display='block';
+ const tick=()=>{ck.textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})};tick();clearInterval(clk);clk=setInterval(tick,15000);
+ try{const r=(desk.requestFullscreen||desk.webkitRequestFullscreen).call(desk);r&&r.catch&&r.catch(()=>{})}catch(e){}}
+function closeDesk(){closeWin('term');clearInterval(clk);if(desk)desk.className='';if(document.fullscreenElement)document.exitFullscreen().catch(()=>{})}
+document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&desk&&desk.className==='on')closeDesk()});
+$('fs').onclick=openDesk;
+</script></body></html>
